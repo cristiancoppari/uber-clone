@@ -42,7 +42,6 @@ export default function CustomButtom({
   IconLeft,
   IconRight,
   classNames,
-  ...props
 }: ButtonProps) {
   return (
     <TouchableOpacity

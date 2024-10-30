@@ -14,7 +14,7 @@ export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [verification, setVerification] = useState({
-    state: "default",
+    state: "",
     error: "",
     code: "",
   });
@@ -176,7 +176,10 @@ export default function SignUpPage() {
 
             <CustomButtom
               title="Browse Home"
-              onPress={() => router.replace("/(root)/(tabs)/home")}
+              onPress={() => {
+                setShowSuccessModal(false);
+                router.push("/(root)/(tabs)/home");
+              }}
               classNames="mt-5"
             />
           </View>
