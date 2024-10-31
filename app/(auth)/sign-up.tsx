@@ -9,6 +9,7 @@ import InputField from "@/components/input-field";
 import OAuth from "@/components/oauth";
 import { images } from "@/constants";
 import { icons } from "@/constants";
+import { fetchAPI } from "@/lib/fetch";
 
 export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -55,7 +56,14 @@ export default function SignUpPage() {
       });
 
       if (completeSignUp.status === "complete") {
-        // TODO: create a DB user
+        await fetchAPI("/(api)/user", {
+          method: "POST",
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        });
 
         await setActive({ session: completeSignUp.createdSessionId });
         setVerification({ ...verification, state: "success" });
