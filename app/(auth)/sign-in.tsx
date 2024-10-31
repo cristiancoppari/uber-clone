@@ -37,7 +37,6 @@ export default function SignInPage() {
         // See https://clerk.com/docs/custom-flows/error-handling
         // for more info on error handling
         Alert.alert("Error", JSON.stringify(signInAttempt, null, 2));
-        // console.error(JSON.stringify(signInAttempt, null, 2));
       }
     } catch (err: any) {
       Alert.alert("Error", err.errors[0].longMessage);

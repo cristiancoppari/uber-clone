@@ -56,6 +56,7 @@ export default function SignUpPage() {
       });
 
       if (completeSignUp.status === "complete") {
+        // fetch call to create an user corresponding to the api route
         await fetchAPI("/(api)/user", {
           method: "POST",
           body: JSON.stringify({
