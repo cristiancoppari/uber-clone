@@ -1,8 +1,21 @@
-// import { useUser } from "@clerk/clerk-expo";
-import { FlatList } from "react-native";
+import { useUser } from "@clerk/clerk-expo";
+import * as Location from "expo-location";
+import { useEffect, useState } from "react";
+import {
+  FlatList,
+  View,
+  Text,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import GoogleTextInput from "@/components/google-text-input";
+import Map from "@/components/map";
 import RideCard from "@/components/ride-card";
+import { images, icons } from "@/constants";
+import { useLocationStore } from "@/store";
 
 const MOCK_RIDES = [
   {
@@ -112,13 +125,112 @@ const MOCK_RIDES = [
 ];
 
 export default function Page() {
-  // const { user } = useUser();
+  const { setUserLocation, setDestinationLocation } = useLocationStore();
+  const [hasPermission, setHasPermission] = useState(() => false);
+  const { user } = useUser();
+
+  const loading = false;
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      console.log(status);
+
+      if (status !== "granted") {
+        setHasPermission(false);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync();
+
+      const address = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      setUserLocation({
+        // latitude: location.coords.latitude,
+        // longitude: location.coords.longitude,
+        latitude: 37.78825,
+        longitude: -122.4324,
+        address: `${address[0].name}, ${address[0].region}`,
+      });
+
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+
+  const handleSignOut = async () => {
+    return;
+  };
+
+  const handleDestinationPress = async () => {
+    return;
+  };
 
   return (
     <SafeAreaView className="bg-general-500">
       <FlatList
         data={MOCK_RIDES.slice(0, 5)}
         renderItem={({ item }) => <RideCard ride={item} />}
+        className="px-5"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        ListHeaderComponent={() => (
+          <>
+            <View className="my-5 flex flex-row items-center justify-between">
+              <Text className="font-JakartaExtraBold text-lg capitalize">
+                Welcome{", "}
+                {user?.firstName ||
+                  user?.emailAddresses[0].emailAddress.split("@")[0]}{" "}
+                👋
+              </Text>
+
+              <TouchableOpacity
+                onPress={handleSignOut}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white"
+              >
+                <Image source={icons.out} className="h-4 w-4" />
+              </TouchableOpacity>
+            </View>
+
+            <GoogleTextInput
+              icon={icons.search}
+              containerStyles="bg-white shadow-md shadow-neutral-300"
+              handlePress={handleDestinationPress}
+            />
+
+            <>
+              <Text className="mb-3 mt-5 font-JakartaBold text-lg">
+                Your Current location
+              </Text>
+              <View className="flex h-[300px] flex-row items-center bg-transparent">
+                <Map />
+              </View>
+            </>
+
+            <Text className="mb-3 mt-5 font-JakartaBold text-lg">
+              Recent Rides
+            </Text>
+          </>
+        )}
+        ListEmptyComponent={
+          <View className="flex flex-col items-center justify-center">
+            {!loading ? (
+              <>
+                <Image
+                  source={images.noResult}
+                  className="h-40 w-40"
+                  alt="No recent files found"
+                  resizeMode="contain"
+                />
+                <Text className="text-sm text-gray-500">No rides yet</Text>
+              </>
+            ) : (
+              <ActivityIndicator size="small" color="#000" />
+            )}
+          </View>
+        }
       />
     </SafeAreaView>
   );
