@@ -1,5 +1,6 @@
 import { useUser } from "@clerk/clerk-expo";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -134,7 +135,6 @@ export default function Page() {
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      console.log(status);
 
       if (status !== "granted") {
         setHasPermission(false);
@@ -149,8 +149,6 @@ export default function Page() {
       });
 
       setUserLocation({
-        // latitude: location.coords.latitude,
-        // longitude: location.coords.longitude,
         latitude: 37.78825,
         longitude: -122.4324,
         address: `${address[0].name}, ${address[0].region}`,
@@ -164,8 +162,14 @@ export default function Page() {
     return;
   };
 
-  const handleDestinationPress = async () => {
-    return;
+  const handleDestinationPress = async (location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  }) => {
+    setDestinationLocation(location);
+
+    router.push("/(root)/find-ride");
   };
 
   return (
@@ -196,7 +200,7 @@ export default function Page() {
 
             <GoogleTextInput
               icon={icons.search}
-              containerStyles="bg-white shadow-md shadow-neutral-300"
+              containerStyle="bg-white shadow-md shadow-neutral-300"
               handlePress={handleDestinationPress}
             />
 
